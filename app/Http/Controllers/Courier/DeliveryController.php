@@ -1,0 +1,62 @@
+<?php
+
+namespace App\Http\Controllers\Courier;
+
+use App\Http\Controllers\Controller;
+use App\Models\Order;
+use Illuminate\Http\Request;
+use Illuminate\View\View;
+
+class DeliveryController extends Controller
+{
+    public function index(Request $request): View
+    {
+        $orders = Order::where('courier_id', $request->user()->id)
+            ->whereIn('status', ['placed', 'confirmed', 'out_for_pickup', 'out_for_delivery'])
+            ->with(['user', 'deliveryZone'])
+            ->orderByDesc('order_date')
+            ->get();
+
+        $completedToday = Order::where('courier_id', $request->user()->id)
+            ->where('status', 'delivered')
+            ->whereDate('delivered_at', today())
+            ->count();
+
+        return view('courier.deliveries.index', compact('orders', 'completedToday'));
+    }
+
+    public function show(Order $order): View
+    {
+        abort_unless($order->courier_id === auth()->id(), 403);
+
+        $order->load(['items.product', 'user', 'deliveryZone', 'trackingEvents']);
+
+        return view('courier.deliveries.show', ['order' => $order]);
+    }
+
+    public function markStatus(Request $request, Order $order)
+    {
+        abort_unless($order->courier_id === auth()->id(), 403);
+
+        $request->validate([
+            'status' => ['required', 'in:confirmed,out_for_pickup,out_for_delivery,delivered'],
+            'location' => ['nullable', 'string', 'max:255'],
+        ]);
+
+        $order->update(['status' => $request->input('status')]);
+
+        $order->trackingEvents()->create([
+            'status' => $request->input('status'),
+            'location' => $request->input('location'),
+            'note' => 'Updated by courier',
+        ]);
+
+        if ($request->input('status') === 'delivered') {
+            $order->update(['delivered_at' => now()]);
+
+            $order->latestPayment()->update(['status' => 'completed', 'paid_at' => now()]);
+        }
+
+        return back()->with('success', 'Status updated.');
+    }
+}
