@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\UpdateOrderStatusRequest;
 use App\Models\DeliveryZone;
 use App\Models\Order;
 use App\Models\User;
@@ -67,12 +68,8 @@ class OrderController extends Controller
         return back()->with('success', 'Delivery zone updated.');
     }
 
-    public function updateStatus(Request $request, Order $order)
+    public function updateStatus(UpdateOrderStatusRequest $request, Order $order)
     {
-        $request->validate([
-            'status' => ['required', 'in:placed,confirmed,out_for_pickup,out_for_delivery,delivered,cancelled'],
-        ]);
-
         $status = $request->input('status');
 
         $order->update(['status' => $status]);

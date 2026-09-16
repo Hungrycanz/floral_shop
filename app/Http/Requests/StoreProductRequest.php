@@ -8,9 +8,7 @@ class StoreProductRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        // TODO: once auth middleware/policies are wired in, replace this with
-        // $this->user()?->isAdmin() - left open for now like the Spring Boot version
-        return true;
+        return $this->user()?->isAdmin() ?? false;
     }
 
     public function rules(): array

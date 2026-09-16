@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\OrderStatus;
 use App\Models\BouquetOption;
 use App\Models\DeliveryZone;
 use App\Models\Order;
@@ -22,7 +23,7 @@ class OrderPlacementService
 
             $order = Order::create([
                 'user_id' => $user->id,
-                'status' => 'placed',
+                'status' => OrderStatus::Placed->value,
                 'delivery_zone_id' => $deliveryZone?->id,
                 'recipient_name' => $deliveryData['recipient_name'] ?? $user->name,
                 'recipient_phone' => $deliveryData['recipient_phone'],

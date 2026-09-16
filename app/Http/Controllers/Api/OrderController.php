@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\PlaceOrderRequest;
 use App\Models\Order;
 use App\Services\OrderPlacementService;
+use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 
 class OrderController extends Controller
@@ -40,8 +41,10 @@ class OrderController extends Controller
         );
     }
 
-    public function show(Order $order)
+    public function show(Request $request, Order $order)
     {
+        abort_unless($order->user_id === $request->user()->id, 403);
+
         return $order->load(['items.product', 'user', 'payments', 'courier', 'deliveryZone', 'trackingEvents']);
     }
 }

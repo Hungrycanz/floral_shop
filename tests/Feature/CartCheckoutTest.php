@@ -130,9 +130,10 @@ class CartCheckoutTest extends TestCase
         ]);
     }
 
-    public function test_payment_can_be_processed(): void
+    public function test_payment_can_be_processed_by_admin(): void
     {
         $user = User::factory()->create();
+        $admin = User::factory()->admin()->create();
         $order = Order::create([
             'user_id' => $user->id,
             'status' => 'placed',
@@ -149,6 +150,11 @@ class CartCheckoutTest extends TestCase
         ]);
 
         $this->actingAs($user)->post(route('payments.process', $payment))
+            ->assertForbidden();
+
+        $this->assertSame('pending', $payment->fresh()->status);
+
+        $this->actingAs($admin)->post(route('payments.process', $payment))
             ->assertRedirect();
 
         $this->assertSame('completed', $payment->fresh()->status);

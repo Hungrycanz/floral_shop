@@ -17,27 +17,24 @@ class DatabaseSeeder extends Seeder
             ProductSeeder::class,
         ]);
 
-        User::factory()->create([
+        User::factory()->admin()->create([
             'name' => 'Shop Admin',
             'email' => 'admin@floralshop.test',
             'phone' => '+256700000001',
-            'role' => 'admin',
             'password' => bcrypt('password'),
         ]);
 
-        User::factory()->create([
+        User::factory()->customer()->create([
             'name' => 'Demo Customer',
             'email' => 'customer@floralshop.test',
             'phone' => '+256700000002',
-            'role' => 'customer',
             'password' => bcrypt('password'),
         ]);
 
-        User::factory()->create([
+        User::factory()->courier()->create([
             'name' => 'Demo Courier',
             'email' => 'courier@floralshop.test',
             'phone' => '+256700000003',
-            'role' => 'courier',
             'password' => bcrypt('password'),
         ]);
     }

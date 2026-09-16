@@ -16,7 +16,8 @@ Route::get('/delivery-zones', fn () => DeliveryZone::active()->get());
 Route::post('/orders', [OrderController::class, 'store'])
     ->middleware(['web', 'auth']);
 
-Route::get('/orders/{order}', [OrderController::class, 'show']);
+Route::get('/orders/{order}', [OrderController::class, 'show'])
+    ->middleware(['web', 'auth']);
 Route::get('/products/{product}/reviews', function (Product $product) {
     return $product->reviews()->with('user')->orderByDesc('created_at')->get();
 });

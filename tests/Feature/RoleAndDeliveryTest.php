@@ -15,28 +15,28 @@ class RoleAndDeliveryTest extends TestCase
 
     public function test_admin_panel_is_forbidden_for_customers(): void
     {
-        $customer = User::factory()->create(['role' => 'customer']);
+        $customer = User::factory()->customer()->create();
 
         $this->actingAs($customer)->get('/admin/orders')->assertForbidden();
     }
 
     public function test_admin_panel_is_forbidden_for_couriers(): void
     {
-        $courier = User::factory()->create(['role' => 'courier']);
+        $courier = User::factory()->courier()->create();
 
         $this->actingAs($courier)->get('/admin/orders')->assertForbidden();
     }
 
     public function test_courier_panel_is_forbidden_for_customers(): void
     {
-        $customer = User::factory()->create(['role' => 'customer']);
+        $customer = User::factory()->customer()->create();
 
         $this->actingAs($customer)->get('/courier/deliveries')->assertForbidden();
     }
 
     public function test_admin_can_access_panels(): void
     {
-        $admin = User::factory()->create(['role' => 'admin']);
+        $admin = User::factory()->admin()->create();
 
         $this->actingAs($admin)->get('/admin')->assertOk();
         $this->actingAs($admin)->get('/admin/orders')->assertOk();
@@ -45,7 +45,7 @@ class RoleAndDeliveryTest extends TestCase
 
     public function test_courier_advances_delivery_and_completes_payment(): void
     {
-        $courier = User::factory()->create(['role' => 'courier']);
+        $courier = User::factory()->courier()->create();
         $customer = User::factory()->create();
         $product = $this->makeProduct();
         $order = Order::create([
